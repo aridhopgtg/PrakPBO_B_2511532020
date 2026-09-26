@@ -10,6 +10,9 @@ public class Rekening {
 	private double saldo;
 	private String pin;
 	
+	private int percobaanGagal = 0;
+	private boolean isTerblokir = false;
+	
 	private ArrayList<Transaksi> riwayatTransaksi;
 	
 	public String formatRupiah(double nominal) {
@@ -40,12 +43,37 @@ public class Rekening {
 	
 	public String getNomorRekening() { return nomorRekening; }
 	public String getNamaPemilik() { return namaPemilik; }
+	public boolean isTerblokir() { return isTerblokir; }
 	
 	public boolean otentikasi(String inputPin) {
-		return this.pin.equals(inputPin);
+		if (isTerblokir) {
+			System.out.println("Akses Ditolak: akun anda terblokir!");
+			return false;
+		}
+		
+		if (this.pin.equals(inputPin)) {
+			percobaanGagal = 0; 
+			return true;
+		} else {
+			percobaanGagal++;
+			System.out.println("Akses Ditolak : PIN yang anda masukkan salah!");
+			
+			if (percobaanGagal >= 3) {
+				isTerblokir = true;
+				System.out.println("akun anda terblokir");
+			} else {
+				System.out.println("Sisa percobaan: " + (3 - percobaanGagal));
+			}
+			return false;
+		}
 	}
 	
 	public void setorTunai(double nominal) {
+		if (isTerblokir) {
+			System.out.println("Transaksi Gagal: akun anda terblokir!");
+			return;
+		}
+		
 		if (nominal > 0) {
 			saldo += nominal;
 			
@@ -53,17 +81,22 @@ public class Rekening {
 			Transaksi trxsBaru = new Transaksi(idTrxs, "Kredit", nominal);
 			riwayatTransaksi.add(trxsBaru);
 			
-			System.out.println("Setor tunai " + formatRupiah(nominal) + " berhasil. Saldo saat ini: " + saldo);
+			System.out.println("Setor tunai " + formatRupiah(nominal) + " berhasil. Saldo saat ini: " + formatRupiah(saldo));
 		} else {
 			System.out.println("Gagal: Nominal setor harus lebih dari 0!");
 		}
 	}
 	
 	public void tarikTunai(double nominal) {
+		if (isTerblokir) {
+			System.out.println("Transaksi Gagal: akun anda terblokir!");
+			return;
+		}
+		
 		if (nominal < 10000) {
-			System.out.println("Transaksi Gagal :  Minimal nominal penarikan " + formatRupiah(10000));
+			System.out.println("Transaksi Gagal : Minimal nominal penarikan " + formatRupiah(10000));
 		} else if (nominal > saldo) {
-			System.out.println("Transaksi Gagal: Saldo tidak mencukupi. Saldo Anda: " + formatRupiah(nominal));
+			System.out.println("Transaksi Gagal: Saldo tidak mencukupi. Saldo Anda: " + formatRupiah(saldo));
 		} else {
 			saldo -= nominal;
 			
@@ -85,6 +118,28 @@ public class Rekening {
 		
 	}
 		
+	public boolean gantiPin(String pinLama, String pinBaru) {
+
+	    if (!this.pin.equals(pinLama)) {
+	        System.out.println("Gagal: PIN lama Anda salah!");
+	        return false;
+	    }
+
+	    if (pinLama.equals(pinBaru)) {
+	        System.out.println("Gagal: PIN baru tidak boleh sama dengan PIN lama!");
+	        return false;
+	    }
+
+	    if (!pinBaru.matches("\\d{6}")) {
+	        System.out.println("Gagal: PIN baru harus berupa 6 digit angka!");
+	        return false;
+	    }
+
+	    this.pin = pinBaru;
+	    System.out.println("Berhasil: PIN Anda telah diperbarui!");
+	    return true;
+	}
+	
 	public void cetakMutasi() {
 		System.out.println("--- RIWAYAT MUTASI REKENING ---");
 		    if (riwayatTransaksi.isEmpty()) {

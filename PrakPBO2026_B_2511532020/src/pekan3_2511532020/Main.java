@@ -18,6 +18,7 @@ public class Main {
 			System.out.println("2. Setor Tunai");
 			System.out.println("3. Tarik Tunai");
 			System.out.println("4. Cek Informasi Rekening");
+			System.out.println("5. Ganti PIN");
 			System.out.println("6. Cetak Mutasi (Riwayat)");
 			System.out.println("0. Keluar");
 			System.out.print("Pilih menu: ");
@@ -34,9 +35,17 @@ public class Main {
 				System.out.print("Masukkan Saldo Awal: ");
 				double saldo = input.nextDouble();
 				input.nextLine();
-				System.out.print("Masukkan PIN: ");
-				String pin = input.nextLine();
-				
+				String pin = "";
+			    while (true) {
+			        System.out.print("Masukkan PIN (6 digit angka): ");
+			        pin = input.nextLine();
+			        
+			        if (pin.matches("\\d{6}")) {
+			            break; 
+			        } else {
+			            System.out.println("Error: PIN harus berupa 6 digit angka! Silakan coba lagi.");
+			        }
+			    }
 				Rekening rekeningBaru = new Rekening(no, nama, saldo, pin);
 				daftarRekening.add(rekeningBaru);
 				akunAktif = rekeningBaru;
@@ -45,16 +54,25 @@ public class Main {
 			case 2:
 				if (akunAktif == null) {
 					System.out.println("Error: Mohon maaf, Anda belum memiliki nomor rekening!");
+				} else if (akunAktif.isTerblokir()) {
+					System.out.println("Transaksi Gagal: akun anda terblokir!");
 				} else {
+					System.out.print("Masukkan PIN Anda: ");
+			        String pinYangDiinput = input.nextLine();
+
+			        if (akunAktif.otentikasi(pinYangDiinput)) {
 					System.out.print("Masukkan nominal setor: ");
 					double setor = input.nextDouble();
 					akunAktif.setorTunai(setor); // Memanggil Behavior / method
+				   }
 				}
 				break;
 				
 			case 3: 
 				if (akunAktif == null) {
 					System.out.println("Error: Mohon maaf, Anda belum memiliki nomor rekening!");
+				} else if (akunAktif.isTerblokir()) {
+					System.out.println("Transaksi Gagal: akun anda terblokir!");
 				} else {
 					System.out.print("Masukkan PIN Anda: ");
 			        String pinYangDiinput = input.nextLine();
@@ -78,6 +96,20 @@ public class Main {
 					akunAktif.cekInformasi();
 				}
 				break;
+				
+			case 5:
+				if (akunAktif == null) {
+			        System.out.println("Error: Anda belum membuka rekening!");
+			    } else {
+			        System.out.print("Masukkan PIN Lama: ");
+			        String pinLama = input.nextLine();
+			        
+			        System.out.print("Masukkan PIN Baru (6 digit angka): ");
+			        String pinBaru = input.nextLine();
+			        
+			        akunAktif.gantiPin(pinLama, pinBaru);
+			    }
+			    break;
 
 			case 6:
 				if (akunAktif == null) {
