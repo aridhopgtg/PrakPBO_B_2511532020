@@ -7,13 +7,13 @@ import java.text.DecimalFormatSymbols;;
 public class Rekening {
 	private String nomorRekening;
 	private String namaPemilik;
-	private double saldo;
+	protected double saldo;
 	private String pin;
 	
 	private int percobaanGagal = 0;
 	private boolean isTerblokir = false;
 	
-	private ArrayList<Transaksi> riwayatTransaksi;
+	protected ArrayList<Transaksi> riwayatTransaksi;
 	
 	public String formatRupiah(double nominal) {
 		DecimalFormatSymbols simbol = new DecimalFormatSymbols();

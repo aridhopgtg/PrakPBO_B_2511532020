@@ -20,6 +20,7 @@ public class Main {
 			System.out.println("4. Cek Informasi Rekening");
 			System.out.println("5. Ganti PIN");
 			System.out.println("6. Cetak Mutasi (Riwayat)");
+			System.out.println("7. Simulasi Akhir Bulan (Khusus Tabungan)");
 			System.out.println("0. Keluar");
 			System.out.print("Pilih menu: ");
 			
@@ -46,10 +47,36 @@ public class Main {
 			            System.out.println("Error: PIN harus berupa 6 digit angka! Silakan coba lagi.");
 			        }
 			    }
-				Rekening rekeningBaru = new Rekening(no, nama, saldo, pin);
+			    System.out.print("Pilih Produk: 1. Tabungan Umum | 2. Giro Bisnis: ");
+				int pilihProduk = input.nextInt();
+				input.nextLine(); // Membersihkan buffer enter
+
+				Rekening rekeningBaru = null;
+
+				if (pilihProduk == 1) {
+					System.out.print("Masukkan Suku Bunga (%): ");
+					double sukuBunga = input.nextDouble();
+					input.nextLine();
+					
+					rekeningBaru = new RekeningTabungan(no, nama, saldo, pin, sukuBunga);
+
+				} else if (pilihProduk == 2) {
+
+					System.out.print("Masukkan Batas Overdraft: ");
+					double batasOverdraft = input.nextDouble();
+					input.nextLine();
+					
+					rekeningBaru = new RekeningGiro(no, nama, saldo, pin, batasOverdraft);
+
+				} else {
+					System.out.println("Pilihan produk tidak valid!");
+					break;
+				}
+
 				daftarRekening.add(rekeningBaru);
 				akunAktif = rekeningBaru;
 				break;
+				
 				
 			case 2:
 				if (akunAktif == null) {
@@ -123,6 +150,18 @@ public class Main {
 			        } else {
 			        	System.out.println("Akses Ditolak : PIN yang anda masukkan salah!");
 			        }
+				}
+				break;
+				
+			case 7:
+				if (akunAktif == null) {
+					System.out.println("Error: Anda belum membuka rekening!");
+				} else if (akunAktif instanceof RekeningTabungan) {
+					// Downcasting dari Rekening ke RekeningTabungan
+					RekeningTabungan tabungan = (RekeningTabungan) akunAktif;
+					tabungan.tambahBungaAkhirBulan();
+				} else {
+					System.out.println("Gagal: Fitur bunga akhir bulan hanya berlaku untuk Rekening Tabungan.");
 				}
 				break;
 				
